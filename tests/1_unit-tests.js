@@ -55,4 +55,19 @@ suite('Unit Tests', () => {
       assert.equal(solver.checkRegionPlacement(validPuzzle, 'G', 6, 3), true);
     });
   });
+  suite('Puzzle solver', () => {
+    test('invalid puzzle string => false', () => {
+      assert.equal(solver.solve('...2345'), false);
+      //add more cases? e.g. unsolvable puzzles?
+    });
+    test("valid puzzle with few .'s => solution", () => {
+      const easyPuzzle = '........' + puzzleStrings[0][1].slice(8);
+      assert.equal(solver.solve(easyPuzzle), puzzleStrings[0][1], 'puzzle 0 solved');
+    });
+    test('valid puzzle => solution', () => {
+      assert.equal(solver.solve(puzzleStrings[0][0]), puzzleStrings[0][1], 'puzzle 0 solved');
+      assert.equal(solver.solve(puzzleStrings[1][0]), puzzleStrings[1][1], 'puzzle 1 solved');
+      assert.equal(solver.solve(puzzleStrings[2][0]), puzzleStrings[2][1], 'puzzle 2 solved');
+    });
+  });
 });
