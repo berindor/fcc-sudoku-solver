@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon server.js",
     "test": "mocha --timeout 5000 --require @babel/register --recursive --exit --ui tdd tests/",
-    "start-dev": "npm run onchange -i -k '**/*.js' -- node server.js"
+    "start-dev": "onchange -i -k '**/*.js' -- node server.js"
   },
   "dependencies": {
     "@babel/core": "^7.11.6",
