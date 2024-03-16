@@ -20,29 +20,39 @@ suite('Unit Tests', () => {
       const shortPuzzle = puzzleStrings[0][0].slice(5);
       assert.equal(solver.validate(shortPuzzle), 'Expected puzzle to be 81 characters long');
     });
+    test('invalid coordinate => "invalid coordinate"', () => {
+      assert.deepInclude(solver.validateInput('K', 2, 3), { error: 'invalid coordinate' });
+      assert.deepInclude(solver.validateInput('A', 10, 3), { error: 'invalid coordinate' });
+    });
+    test('invalid value => "invalid value"', () => {
+      assert.deepInclude(solver.validateInput('A', 2, 'b'), { error: 'invalid value' });
+    });
   });
   suite('Check row', () => {
     test('no conflict in row => true', () => {
-      assert.isOk(solver.checkRowPlacement(validPuzzle, 'A', 2, 3));
+      assert.equal(solver.checkRowPlacement(validPuzzle, 'G', 5, 6), true);
     });
     test('conflict in row => false', () => {
-      assert.isNotOk(solver.checkRowPlacement(validPuzzle, 'A', 2, 8));
+      assert.equal(solver.checkRowPlacement(validPuzzle, 'G', 5, 1), false);
     });
   });
   suite('Check column', () => {
     test('no conflict in column => true', () => {
-      assert.isOk(solver.checkColPlacement(validPuzzle, 'A', 2, 3));
+      assert.equal(solver.checkColPlacement(validPuzzle, 'G', 5, 8), true);
     });
     test('conflict in column => false', () => {
-      assert.isNotOk(solver.checkColPlacement(validPuzzle, 'A', 2, 7));
+      assert.equal(solver.checkColPlacement(validPuzzle, 'G', 5, 3), false);
     });
   });
   suite('Check region', () => {
     test('no conflict in region => true', () => {
-      assert.isOk(solver.checkRegionPlacement(validPuzzle, 'A', 2, 3));
+      assert.equal(solver.checkRegionPlacement(validPuzzle, 'G', 5, 3), true);
     });
     test('conflict in region => false', () => {
-      assert.isNotOk(solver.checkRegionPlacement(validPuzzle, 'A', 2, 6));
+      assert.equal(solver.checkRegionPlacement(validPuzzle, 'G', 5, 6), false);
+    });
+    test('no conflict in region on a place where not . stands => true', () => {
+      assert.equal(solver.checkRegionPlacement(validPuzzle, 'G', 6, 3), true);
     });
   });
 });
