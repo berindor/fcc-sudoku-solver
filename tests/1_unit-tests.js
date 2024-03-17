@@ -61,13 +61,17 @@ suite('Unit Tests', () => {
       //add more cases? e.g. unsolvable puzzles?
     });
     test("valid puzzle with few .'s => solution", () => {
-      const easyPuzzle = '........' + puzzleStrings[0][1].slice(8);
+      const easyPuzzle = '...........' + puzzleStrings[0][1].slice(11);
       assert.equal(solver.solve(easyPuzzle), puzzleStrings[0][1], 'puzzle 0 solved');
     });
     test('valid puzzle => solution', () => {
       assert.equal(solver.solve(puzzleStrings[0][0]), puzzleStrings[0][1], 'puzzle 0 solved');
       assert.equal(solver.solve(puzzleStrings[1][0]), puzzleStrings[1][1], 'puzzle 1 solved');
       assert.equal(solver.solve(puzzleStrings[2][0]), puzzleStrings[2][1], 'puzzle 2 solved');
+      assert.equal(solver.solve(puzzleStrings[3][0]), puzzleStrings[3][1], 'puzzle 3 solved');
+      assert.equal(solver.solve(puzzleStrings[4][0]), puzzleStrings[4][1], 'puzzle 4 solved');
+      //add more cases? puzzles where separate cases needed to be checked
+      //no example provided for this :(
     });
   });
 });

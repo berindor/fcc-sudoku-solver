@@ -61,73 +61,55 @@ class SudokuSolver {
     let solveData = [];
     for (let index = 0; index < 81; index++) {
       solveData.push({
-        solved: puzzleString[index] === '.' ? false : true,
         value: puzzleString[index],
-        possibleValues: [],
-        rowLetter: String.fromCharCode('A'.charCodeAt(0) + Math.floor(index / 9)),
-        column: (index % 9) + 1
+        possibleValues: puzzleString[index] === '.' ? [1, 2, 3, 4, 5, 6, 7, 8, 9] : [puzzleString[index]]
       });
     }
 
-    const reduceCases = data => {
-      let solveData = data;
+    const reduceCases = dataToReduce => {
+      let dataArr = dataToReduce;
+      let puzzleStringOfData = dataToReduce.map(cellData => cellData.value).join('');
       for (let index = 0; index < 81; index++) {
-        let possibleValues = [];
-        let { rowLetter, column } = solveData[index];
-        for (let value = 1; value < 10; value++) {
-          if (
-            this.checkRowPlacement(puzzleString, rowLetter, column, value) === true &&
-            this.checkColPlacement(puzzleString, rowLetter, column, value) === true &&
-            this.checkRegionPlacement(puzzleString, rowLetter, column, value) === true
-          ) {
-            possibleValues.push(value);
+        if (dataToReduce[index].value === '.') {
+          let rowLetter = String.fromCharCode('A'.charCodeAt(0) + Math.floor(index / 9));
+          let column = (index % 9) + 1;
+          let possibleValues = [];
+          for (let value = 1; value < 10; value++) {
+            if (
+              this.checkRowPlacement(puzzleStringOfData, rowLetter, column, value) === true &&
+              this.checkColPlacement(puzzleStringOfData, rowLetter, column, value) === true &&
+              this.checkRegionPlacement(puzzleStringOfData, rowLetter, column, value) === true
+            ) {
+              possibleValues.push(value);
+            }
           }
-        }
-        solveData[index].possibleValues = possibleValues;
-        if (possibleValues === []) return 'unsolvable';
-        if (possibleValues.length === 1) {
-          solveData[index].value = possibleValues[0];
-          solveData[index].solved = true;
+          dataArr[index].possibleValues = possibleValues;
+          if (possibleValues === []) return 'unsolvable';
+          if (possibleValues.length === 1) dataArr[index].value = possibleValues[0];
         }
       }
-      return solveData;
+      return dataArr;
     };
 
-    let previousPuzzleString = puzzleString;
-    solveData = reduceCases(solveData);
-    if (solveData === 'unsolvable') return 'unsolvable';
-    let newPuzzleString = solveData.map(data => data.value).join('');
-    console.log('newPuzzleString: ', newPuzzleString);
-
-    while (solveData !== 'unsolvable' && previousPuzzleString !== newPuzzleString) {
-      previousPuzzleString = newPuzzleString;
-      solveData = reduceCases(solveData);
-      newPuzzleString = solveData.map(data => data.value).join('');
-      console.log('newPuzzleString: ', newPuzzleString);
-    }
-
-    if (solveData === 'unsolvable') return 'unsolvable';
-    return newPuzzleString;
-
-    //TODO: when previousPuzzleString === newPuzzleString
-
-    /*
-    const firstPeriodIndex = puzzleString.search('.');
-    const rowLetter = String.fromCharCode('A'.charCodeAt(0) + Math.floor(firstPeriodIndex / 9));
-    const column = (firstPeriodIndex % 9) + 1;
+    let previousData;
+    let previousPuzzleString;
     let newPuzzleString;
-    for (let value = 0; value < 10; value++) {
-      if (
-        this.checkRowPlacement(puzzleString, rowLetter, column, value) === true &&
-        this.checkColPlacement(puzzleString, rowLetter, column, value) === true &&
-        this.checkRegionPlacement(puzzleString, rowLetter, column, value) === true
-      ) {
-        newPuzzleString = puzzleString.slice(0, firstPeriodIndex) + value + puzzleString.slice(firstPeriodIndex + 1);
-        if (this.solve(newPuzzleString) !== 'unsolvable') return this.solve(newPuzzleString);
-      }
-    }
-    if (value === 10) return 'unsolvable';
-    */
+    let count = 0;
+
+    do {
+      previousData = solveData;
+      previousPuzzleString = previousData.map(data => data.value).join('');
+      solveData = reduceCases(previousData);
+      if (solveData === 'unsolvable') return 'unsolvable';
+      newPuzzleString = solveData.map(data => data.value).join('');
+      count++;
+      console.log(`newPuzzleString${count}: `, newPuzzleString);
+    } while (solveData !== 'unsolvable' && newPuzzleString !== previousPuzzleString && count < 81);
+
+    if (!newPuzzleString.includes('.')) return solveData.map(data => data.value).join('');
+
+    return 'not easily solvable';
+    //TODO: when previousPuzzleString === newPuzzleString
   }
 }
 
