@@ -54,6 +54,21 @@ class SudokuSolver {
 
   solve(puzzleString) {
     if (this.validate(puzzleString) !== true) return false;
+
+    //check if puzzlestring has no incompatibilities with itself
+    for (let index = 0; index < 81; index++) {
+      let rowLetter = String.fromCharCode('A'.charCodeAt(0) + Math.floor(index / 9));
+      let column = (index % 9) + 1;
+      let value = puzzleString[index];
+      if (
+        this.checkRowPlacement(puzzleString, rowLetter, column, value) === false ||
+        this.checkColPlacement(puzzleString, rowLetter, column, value) === false ||
+        this.checkRegionPlacement(puzzleString, rowLetter, column, value) === false
+      ) {
+        return 'unsolvable';
+      }
+    }
+
     if (!puzzleString.includes('.')) return puzzleString;
 
     console.log('puzzleString: ', puzzleString);
