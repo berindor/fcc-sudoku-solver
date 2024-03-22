@@ -20,12 +20,12 @@ suite('Unit Tests', () => {
       const shortPuzzle = puzzleStrings[0][0].slice(5);
       assert.equal(solver.validate(shortPuzzle), 'Expected puzzle to be 81 characters long');
     });
-    test('invalid coordinate => "invalid coordinate"', () => {
-      assert.deepInclude(solver.validateInput('K', 2, 3), { error: 'invalid coordinate' });
-      assert.deepInclude(solver.validateInput('A', 10, 3), { error: 'invalid coordinate' });
+    test('invalid coordinate => "Invalid coordinate"', () => {
+      assert.deepInclude(solver.validateInput('K', 2, 3), { error: 'Invalid coordinate' });
+      assert.deepInclude(solver.validateInput('A', 10, 3), { error: 'Invalid coordinate' });
     });
-    test('invalid value => "invalid value"', () => {
-      assert.deepInclude(solver.validateInput('A', 2, 'b'), { error: 'invalid value' });
+    test('invalid value => "Invalid value"', () => {
+      assert.deepInclude(solver.validateInput('A', 2, 'b'), { error: 'Invalid value' });
     });
   });
   suite('Check row', () => {
@@ -41,7 +41,8 @@ suite('Unit Tests', () => {
       assert.equal(solver.checkColPlacement(validPuzzle, 'G', 5, 8), true);
     });
     test('conflict in column => false', () => {
-      assert.equal(solver.checkColPlacement(validPuzzle, 'G', 5, 3), false);
+      assert.equal(solver.checkColPlacement(validPuzzle, 'G', 5, 3), false), 'value 3 in G5';
+      assert.equal(solver.checkColPlacement(validPuzzle, 'D', 4, 6), false, 'value 6 in D4');
     });
   });
   suite('Check region', () => {

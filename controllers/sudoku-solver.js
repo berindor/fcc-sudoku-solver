@@ -9,10 +9,10 @@ class SudokuSolver {
   validateInput(row, column, value) {
     let output = { error: undefined, rowIndex: undefined };
     if (!/^[A-I]$/.test(row) || !/^[1-9]$/.test(column)) {
-      output.error = 'invalid coordinate';
+      output.error = 'Invalid coordinate';
     }
     if (!/^[1-9]$/.test(value.toString())) {
-      output.error = 'invalid value';
+      output.error = 'Invalid value';
     }
     output.rowIndex = row.charCodeAt(0) - 'A'.charCodeAt(0);
     return output;
@@ -71,7 +71,7 @@ class SudokuSolver {
 
     if (!puzzleString.includes('.')) return puzzleString;
 
-    console.log('puzzleString: ', puzzleString);
+    //console.log('puzzleString: ', puzzleString);
     //create solveData array
     let solveData = [];
     for (let index = 0; index < 81; index++) {
@@ -118,7 +118,7 @@ class SudokuSolver {
       if (solveData === 'unsolvable') return 'unsolvable';
       newPuzzleString = solveData.map(data => data.value).join('');
       count++;
-      console.log(`newPuzzleString${count}: `, newPuzzleString);
+      //console.log(`newPuzzleString${count}: `, newPuzzleString);
     } while (solveData !== 'unsolvable' && newPuzzleString !== previousPuzzleString && count < 81);
 
     if (!newPuzzleString.includes('.')) return solveData.map(data => data.value).join('');
