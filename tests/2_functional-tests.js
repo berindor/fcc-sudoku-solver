@@ -67,16 +67,24 @@ suite('Functional Tests', () => {
     });
     test('puzzle that cannot be solved => {error: Puzzle cannot be solved}', function (done) {
       //conflict with itself:
-      const unsolvablePuzzle = '6.9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
-      //not easily solvable, but in fact unsolvable
-      //const unsolvablePuzzle = '..9..5.1.85.4.1..2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
+      const unsolvablePuzzle1 = '6.9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
       chai
         .request(server)
         .post('/api/solve')
-        .send({ puzzle: unsolvablePuzzle })
+        .send({ puzzle: unsolvablePuzzle1 })
         .end(function (err, res) {
           assert.equal(res.status, 200);
-          assert.deepEqual(res.body, { error: 'Puzzle cannot be solved' });
+          assert.deepEqual(res.body, { error: 'Puzzle cannot be solved' }, 'puzzle has conflict with itself');
+        });
+      //not easily solvable, but in fact unsolvable
+      const unsolvablePuzzle2 = '..9..5.1.85.4.1..2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
+      chai
+        .request(server)
+        .post('/api/solve')
+        .send({ puzzle: unsolvablePuzzle2 })
+        .end(function (err, res) {
+          assert.equal(res.status, 200);
+          assert.deepEqual(res.body, { error: 'Puzzle cannot be solved' }, 'unsolvable puzzle');
           done();
         });
     });

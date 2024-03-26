@@ -63,16 +63,36 @@ suite('Unit Tests', () => {
     });
     test("valid puzzle with few .'s => solution", () => {
       const easyPuzzle = '...........' + puzzleStrings[0][1].slice(11);
-      assert.equal(solver.solve(easyPuzzle), puzzleStrings[0][1], 'puzzle 0 solved');
+      assert.equal(solver.solve(easyPuzzle), puzzleStrings[0][1], 'easy puzzle');
     });
     test('valid puzzle => solution', () => {
-      assert.equal(solver.solve(puzzleStrings[0][0]), puzzleStrings[0][1], 'puzzle 0 solved');
-      assert.equal(solver.solve(puzzleStrings[1][0]), puzzleStrings[1][1], 'puzzle 1 solved');
-      assert.equal(solver.solve(puzzleStrings[2][0]), puzzleStrings[2][1], 'puzzle 2 solved');
-      assert.equal(solver.solve(puzzleStrings[3][0]), puzzleStrings[3][1], 'puzzle 3 solved');
-      assert.equal(solver.solve(puzzleStrings[4][0]), puzzleStrings[4][1], 'puzzle 4 solved');
-      //add more cases? puzzles where separate cases needed to be checked
-      //no example provided for this :(
+      assert.equal(solver.solve(puzzleStrings[0][0]), puzzleStrings[0][1], 'puzzle 0');
+      assert.equal(solver.solve(puzzleStrings[1][0]), puzzleStrings[1][1], 'puzzle 1');
+      assert.equal(solver.solve(puzzleStrings[2][0]), puzzleStrings[2][1], 'puzzle 2');
+      assert.equal(solver.solve(puzzleStrings[3][0]), puzzleStrings[3][1], 'puzzle 3');
+      assert.equal(solver.solve(puzzleStrings[4][0]), puzzleStrings[4][1], 'puzzle 4');
+      //puzzle with solution foundable in many steps:
+      const notEasyPuzzle = '123456789........................................................................';
+      assert.equal(
+        solver.solve(notEasyPuzzle),
+        '123456789456789123789123456214365897365897214897214365531642978642978531978531642',
+        'not easy puzzle'
+      );
+      //underdefined puzzle
+      const underdefPuzzle = '9................................................................................';
+      assert.equal(
+        solver.solve(underdefPuzzle),
+        '912345678345678129678129345123456897456897213789213456237561984561984732894732561',
+        'underdefined puzzle'
+      );
+    });
+    test('unsolvable puzzle => unsolvable', () => {
+      //conflict with itself:
+      const unsolvablePuzzle1 = '6.9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
+      assert.equal(solver.solve(unsolvablePuzzle1), 'unsolvable', 'unsolvable puzzle 1');
+      //not easily solvable, but in fact unsolvable
+      const unsolvablePuzzle2 = '..9..5.1.85.4.1..2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
+      assert.equal(solver.solve(unsolvablePuzzle2), 'unsolvable', 'unsolvable puzzle 1');
     });
   });
 });

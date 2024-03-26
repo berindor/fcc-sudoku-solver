@@ -56,75 +56,128 @@ class SudokuSolver {
     if (this.validate(puzzleString) !== true) return false;
 
     //check if puzzlestring has no incompatibilities with itself
-    for (let index = 0; index < 81; index++) {
-      let rowLetter = String.fromCharCode('A'.charCodeAt(0) + Math.floor(index / 9));
-      let column = (index % 9) + 1;
-      let value = puzzleString[index];
-      if (
-        this.checkRowPlacement(puzzleString, rowLetter, column, value) === false ||
-        this.checkColPlacement(puzzleString, rowLetter, column, value) === false ||
-        this.checkRegionPlacement(puzzleString, rowLetter, column, value) === false
-      ) {
-        return 'unsolvable';
-      }
-    }
-
-    if (!puzzleString.includes('.')) return puzzleString;
-
-    //console.log('puzzleString: ', puzzleString);
-    //create solveData array
-    let solveData = [];
-    for (let index = 0; index < 81; index++) {
-      solveData.push({
-        value: puzzleString[index],
-        possibleValues: puzzleString[index] === '.' ? [1, 2, 3, 4, 5, 6, 7, 8, 9] : [puzzleString[index]]
-      });
-    }
-
-    const reduceCases = dataToReduce => {
-      let dataArr = dataToReduce;
-      let puzzleStringOfData = dataToReduce.map(cellData => cellData.value).join('');
+    const checkCompatibility = inputPuzzleString => {
       for (let index = 0; index < 81; index++) {
-        if (dataToReduce[index].value === '.') {
+        let rowLetter = String.fromCharCode('A'.charCodeAt(0) + Math.floor(index / 9));
+        let column = (index % 9) + 1;
+        let value = inputPuzzleString[index];
+        if (
+          this.checkRowPlacement(inputPuzzleString, rowLetter, column, value) === false ||
+          this.checkColPlacement(inputPuzzleString, rowLetter, column, value) === false ||
+          this.checkRegionPlacement(inputPuzzleString, rowLetter, column, value) === false
+        ) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    //inputPuzzleString => array of {value, possibleValues array} or 'unsolvable'
+    const reduceCases = inputPuzzleString => {
+      let dataArr = inputPuzzleString.split('').map(input => {
+        return { value: input, possibleValues: [input] };
+      });
+      for (let index = 0; index < 81; index++) {
+        if (inputPuzzleString[index] === '.') {
           let rowLetter = String.fromCharCode('A'.charCodeAt(0) + Math.floor(index / 9));
           let column = (index % 9) + 1;
           let possibleValues = [];
           for (let value = 1; value < 10; value++) {
             if (
-              this.checkRowPlacement(puzzleStringOfData, rowLetter, column, value) === true &&
-              this.checkColPlacement(puzzleStringOfData, rowLetter, column, value) === true &&
-              this.checkRegionPlacement(puzzleStringOfData, rowLetter, column, value) === true
+              this.checkRowPlacement(inputPuzzleString, rowLetter, column, value) === true &&
+              this.checkColPlacement(inputPuzzleString, rowLetter, column, value) === true &&
+              this.checkRegionPlacement(inputPuzzleString, rowLetter, column, value) === true
             ) {
               possibleValues.push(value);
             }
           }
           dataArr[index].possibleValues = possibleValues;
-          if (possibleValues === []) return 'unsolvable';
+          if (possibleValues.length === 0) return 'unsolvable';
           if (possibleValues.length === 1) dataArr[index].value = possibleValues[0];
         }
       }
+      if (checkCompatibility(dataArr.map(data => data.value).join('')) === false) return 'unsolvable';
       return dataArr;
     };
 
-    let previousData;
-    let previousPuzzleString;
-    let newPuzzleString;
-    let count = 0;
+    //fill the unambiguous cells repeatedly until there are no more
+    //inputPuzzleString => outputPuzzleString or unsolvable
+    const unambFill = inputPuzzleString => {
+      let previousPuzzleString;
+      let solveData;
+      let newPuzzleString = inputPuzzleString;
 
-    do {
-      previousData = solveData;
-      previousPuzzleString = previousData.map(data => data.value).join('');
-      solveData = reduceCases(previousData);
-      if (solveData === 'unsolvable') return 'unsolvable';
-      newPuzzleString = solveData.map(data => data.value).join('');
-      count++;
-      //console.log(`newPuzzleString${count}: `, newPuzzleString);
-    } while (solveData !== 'unsolvable' && newPuzzleString !== previousPuzzleString && count < 81);
+      do {
+        previousPuzzleString = newPuzzleString;
+        solveData = reduceCases(previousPuzzleString);
+        if (solveData === 'unsolvable') return 'unsolvable';
+        newPuzzleString = solveData.map(data => data.value).join('');
+      } while (solveData !== 'unsolvable' && newPuzzleString !== previousPuzzleString);
 
-    if (!newPuzzleString.includes('.')) return solveData.map(data => data.value).join('');
+      return newPuzzleString;
+    };
 
-    return 'not easily solvable';
-    //TODO: when previousPuzzleString === newPuzzleString
+    //unreducable string => 'unsolvable' or solution or iterate
+    let stepCount = 0;
+    let iterationCount = 0;
+    const reduceUncertain = inputPuzzleString => {
+      //console.log(`inputPuzzleString${stepCount}: ${inputPuzzleString}`);
+      let newPuzzleString = unambFill(inputPuzzleString);
+      if (newPuzzleString === 'unsolvable') return 'unsolvable';
+      if (!newPuzzleString.includes('.')) return newPuzzleString;
+
+      const indexOfFirstUncertain = newPuzzleString.search(/\./);
+      let solveData = reduceCases(newPuzzleString);
+      const listOfPossibleValues = solveData[indexOfFirstUncertain].possibleValues;
+      iterationCount++;
+      //console.log(`iteration #${iterationCount} needed, list of possible values on place ${indexOfFirstUncertain}: [${listOfPossibleValues}]`);
+
+      while (stepCount < 300) {
+        let unsolvableCases = 0;
+        for (let value of listOfPossibleValues) {
+          let insertValueInPuzzle = inputPuzzleString.slice(0, indexOfFirstUncertain) + value + inputPuzzleString.slice(indexOfFirstUncertain + 1);
+          stepCount++;
+          //console.log(`step ${stepCount}: insert value ${value} in place ${indexOfFirstUncertain}`);
+
+          newPuzzleString = unambFill(insertValueInPuzzle);
+
+          if (newPuzzleString === 'unsolvable') {
+            unsolvableCases++;
+            /*
+            console.log(
+              `newPuzzleString${stepCount}: unsolvable => first ${unsolvableCases} cases of [${listOfPossibleValues}] unsolvable on place ${indexOfFirstUncertain}`
+            );
+            */
+          } else if (!newPuzzleString.includes('.')) {
+            //console.log(`newPuzzleString${stepCount}: solved: ${newPuzzleString}`);
+            return newPuzzleString;
+          } else {
+            //console.log(`newPuzzleString${stepCount}: iteration needed`);
+            let iteration = reduceUncertain(newPuzzleString);
+            if (iteration === 'unsolvable') {
+              unsolvableCases++;
+              /*
+              console.log(
+                `newPuzzleString${stepCount} with first ${unsolvableCases} iterations in [${listOfPossibleValues}] on place ${indexOfFirstUncertain} is unsolvable`
+              );
+              */
+            } else {
+              stepCount++;
+              //console.log(`newPuzzleString${stepCount}: iteration solved: ${iteration}`);
+              return iteration;
+            }
+          }
+        }
+        if (unsolvableCases === listOfPossibleValues.length) {
+          return 'unsolvable';
+        }
+      }
+    };
+
+    let unambFilledString = unambFill(puzzleString);
+    if (unambFilledString === 'unsolvable') return 'unsolvable';
+    if (!unambFilledString.includes('.')) return unambFilledString;
+    return reduceUncertain(unambFilledString);
   }
 }
 
